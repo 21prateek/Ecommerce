@@ -3,7 +3,7 @@ import { db } from "../db/db.js";
 
 export const authMiddlewre = async (req, res, next) => {
   try {
-    const token = res.cookies?.jwt;
+    const token = req.cookies?.jwt;
 
     if (!token) {
       return res.status(401).json({
@@ -23,7 +23,7 @@ export const authMiddlewre = async (req, res, next) => {
 
     const user = await db.user.findUnique({
       where: {
-        id: decode.id,
+        id: decoded.id,
       },
       select: {
         id: true,
@@ -69,4 +69,3 @@ export const checkAdmin = async (req, res, next) => {
     res.status(500).json({ message: "Error checking admin role" });
   }
 };
-

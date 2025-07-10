@@ -1,23 +1,19 @@
 import { db } from "../db/db.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { generateToken, cookieOptions } from "../utils/auth.js";
+import { sendSuccess, sendError } from "../utils/response.js";
 
 export const register = async (req, res) => {
-  const { name, password, email } = req.body;
-  console.log(name, password, email);
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return sendError(res, 400, "Name, email, and password are required");
+  }
 
   try {
-    const existingUser = await db.user.findUnique({
-      where: {
-        email,
-      },
-    });
-
+    const existingUser = await db.user.findUnique({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({
-        message: "User already exist",
-        success: false,
-      });
+      return sendError(res, 400, "User already exists");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -31,28 +27,10 @@ export const register = async (req, res) => {
       },
     });
 
-    if (!user) {
-      return res.status(400).json({
-        message: "Cannot create user",
-        success: false,
-      });
-    }
+    const token = generateToken(user.id);
+    res.cookie("jwt", token, cookieOptions);
 
-    const token = await jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
-    const options = {
-      httpOnly: true,
-      samesite: true,
-      secure: process.env.NODE_ENV !== "development",
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    };
-
-    res.cookie("jwt", token, options);
-
-    res.status(201).json({
-      message: "User created successfully",
+    return sendSuccess(res, 201, "User created successfully", {
       user: {
         id: user.id,
         email: user.email,
@@ -60,58 +38,34 @@ export const register = async (req, res) => {
         role: user.role,
       },
     });
-  } catch (error) {
-    console.log("Something went wrong", error.message);
-
-    return res.status(500).json({
-      error: "Something went wrong while creating user",
-      success: false,
-    });
+  } catch (err) {
+    console.error("Registration error:", err);
+    return sendError(res, 500, "Internal server error", err.message);
   }
 };
 
 export const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return sendError(res, 400, "Email and password are required");
+  }
+
   try {
-    const { password, email } = req.body;
-
-    const user = await db.user.findUnique({
-      where: {
-        email,
-      },
-    });
-
+    const user = await db.user.findUnique({ where: { email } });
     if (!user) {
-      return res.status(403).json({
-        message: "No user found",
-        success: false,
-      });
+      return sendError(res, 403, "Invalid email or password");
     }
 
-    const isCorrect = bcrypt.compare(password, user.password);
-
+    const isCorrect = await bcrypt.compare(password, user.password);
     if (!isCorrect) {
-      return res.status(403).json({
-        message: "Password is wrong",
-        success: false,
-      });
+      return sendError(res, 403, "Invalid email or password");
     }
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    const token = generateToken(user.id);
+    res.cookie("jwt", token, cookieOptions);
 
-    const options = {
-      httpOnly: true,
-      samesite: true,
-      secure: process.env.NODE_ENV !== "development",
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    };
-
-    res.cookie("jwt", token);
-
-    res.status(200).json({
-      success: true,
-      message: "User Logged in successfully",
+    return sendSuccess(res, 200, "User logged in successfully", {
       user: {
         id: user.id,
         email: user.email,
@@ -119,30 +73,18 @@ export const login = async (req, res) => {
         role: user.role,
       },
     });
-  } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({
-      error: "Error logging in user",
-    });
+  } catch (err) {
+    console.error("Login error:", err);
+    return sendError(res, 500, "Internal server error", err.message);
   }
 };
 
-export const logout = async (req, res, next) => {
+export const logout = async (req, res) => {
   try {
-    res.clearCookie("jwt", {
-      httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV !== "development",
-    });
-
-    res.status(200).json({
-      success: true,
-      message: "User logged out successfully",
-    });
-  } catch (error) {
-    console.error("Error logging out user:", error);
-    res.status(500).json({
-      error: "Error logging out user",
-    });
+    res.clearCookie("jwt", cookieOptions);
+    return sendSuccess(res, 200, "User logged out successfully");
+  } catch (err) {
+    console.error("Logout error:", err);
+    return sendError(res, 500, "Internal server error", err.message);
   }
 };
