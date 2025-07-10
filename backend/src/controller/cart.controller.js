@@ -4,16 +4,23 @@ import { sendError, sendSuccess } from "../utils/response.js";
 //add to cart
 export const addItemToCart = async (req, res) => {
   const { productId, quantity } = req.body;
+
   const id = req.user.id;
 
   try {
-    //
+    // Check if the productId and quantity are provided
+    if (!productId || !quantity) {
+      return sendError(res, 400, "Product ID and quantity are required");
+    }
+
     const existingProduct = await db.cartItem.findFirst({
       where: {
-        userId,
+        userId: id,
         productId,
       },
     });
+
+    console.log("Existing product in cart:", existingProduct);
 
     //if the product exist than update the quantity
     if (existingProduct) {
@@ -36,7 +43,7 @@ export const addItemToCart = async (req, res) => {
     //if product does not exist in the cart
     const newItem = await db.cartItem.create({
       data: {
-        userId,
+        userId: id,
         productId,
         quantity,
       },

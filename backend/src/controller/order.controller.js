@@ -86,13 +86,11 @@ export const getUserOrders = async (req, res) => {
 export const getAllOrders = async (req, res) => {
   try {
     //so here we want all the order that are in database
-    const orders = await db.order.findMany({
+    const orders = await db.orders.findMany({
       include: {
         user: true, //so it will include user detail and all its order items with the product info
         orderItems: {
-          include: {
-            product: true,
-          },
+          include: { product: true },
         },
       },
     });

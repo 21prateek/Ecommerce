@@ -5,6 +5,7 @@ import cors from "cors";
 import { authRouter } from "./router/auth.route.js";
 import { productRouter } from "./router/product.route.js";
 import { cartItemRouter } from "./router/cartItem.route.js";
+import { orderRouter } from "./router/orders.route.js";
 dotenv.config();
 
 export const app = express();
@@ -22,3 +23,4 @@ app.use(
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/cart", cartItemRouter);
+app.use("/api/v1/order", orderRouter);
