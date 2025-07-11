@@ -29,6 +29,7 @@ model User {
   updateAt  DateTime   @updatedAt
   Orders    Orders[]
   CartItem  CartItem[]
+  Payment   Payment[]
 }
 
 model Products {
@@ -53,6 +54,7 @@ model Orders {
   user User @relation(fields: [userId], references: [id])
 
   orderItems OrderItem[]
+  Payment    Payment?
 }
 
 model OrderItem {
@@ -76,4 +78,18 @@ model CartItem {
 
   user    User     @relation(fields: [userId], references: [id])
   product Products @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  orderId   String   @unique
+  userId    String
+  amount    Int
+  currency  String   @default("INR")
+  status    String   @default("PENDING") //SUCCESS,FAILED
+  paymentId String //razor payment id
+  createrAt DateTime @default(now())
+
+  order Orders @relation(fields: [orderId], references: [id])
+  user  User   @relation(fields: [userId], references: [id])
 }
