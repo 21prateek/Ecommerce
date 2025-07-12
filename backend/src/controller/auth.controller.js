@@ -57,6 +57,16 @@ export const login = async (req, res) => {
       return sendError(res, 403, "Invalid email or password");
     }
 
+    //Block login for OAuth users, if we register using our own then provider will be null and we will not face this error
+    //but someone has logged in using google then they will not be able to using this login we have to use Oauth from that . so its better to show a message in UI that your have already logged in with google try that
+    if (user.provider) {
+      return sendError(
+        res,
+        403,
+        `Please log in with ${user.provider} instead of email/password`
+      );
+    }
+
     const isCorrect = await bcrypt.compare(password, user.password);
     if (!isCorrect) {
       return sendError(res, 403, "Invalid email or password");

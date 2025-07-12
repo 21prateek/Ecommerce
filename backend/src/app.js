@@ -6,6 +6,10 @@ import { authRouter } from "./router/auth.route.js";
 import { productRouter } from "./router/product.route.js";
 import { cartItemRouter } from "./router/cartItem.route.js";
 import { orderRouter } from "./router/orders.route.js";
+import "./config/passport.js";
+import passport from "passport";
+import session from "express-session";
+import { oauthRouter } from "./router/oauth.route.js";
 dotenv.config();
 
 export const app = express();
@@ -20,6 +24,21 @@ app.use(
   })
 );
 
+//OAuth
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Your OAuth routes
+app.use("/auth", oauthRouter);
+
+//Controllers
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/cart", cartItemRouter);
