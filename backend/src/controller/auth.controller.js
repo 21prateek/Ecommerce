@@ -47,6 +47,8 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
+  console.log(email, password);
+
   if (!email || !password) {
     return sendError(res, 400, "Email and password are required");
   }
@@ -96,5 +98,20 @@ export const logout = async (req, res) => {
   } catch (err) {
     console.error("Logout error:", err);
     return sendError(res, 500, "Internal server error", err.message);
+  }
+};
+
+export const check = async (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+      message: "User authenticated successfully",
+      user: req.user,
+    });
+  } catch (error) {
+    console.error("Error checking user:", error);
+    res.status(500).json({
+      error: "Error checking user",
+    });
   }
 };

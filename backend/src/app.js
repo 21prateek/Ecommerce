@@ -29,7 +29,11 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // set to true if using HTTPS
+      httpOnly: true,
+    },
   })
 );
 app.use(passport.initialize());

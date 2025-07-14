@@ -1,4 +1,4 @@
-import jwt, { decode } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { db } from "../db/db.js";
 
 export const authMiddlewre = async (req, res, next) => {

@@ -1,6 +1,7 @@
 import passport from "passport";
-import { Strategy as GoogleStrategy } from "passport";
-import { db } from "../db/db";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { db } from "../db/db.js";
+import jwt from "jsonwebtoken";
 
 passport.use(
   new GoogleStrategy(
@@ -30,6 +31,18 @@ passport.use(
           },
         });
       }
+
+      //As we know passport can make its own token too , but here as we know our middleware is checking jwt token as cookie and it should be named as jwt in cookies
+      //so thats why we are making it mannually
+      //  Generate JWT and return it
+      const token = jwt.sign(
+        { id: user.id, email: user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      // Send this token manually in your callback route
+      user.token = token;
 
       done(null, user);
     }

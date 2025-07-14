@@ -17,7 +17,7 @@ export const generateToken = (userId) => {
  */
 export const cookieOptions = {
   httpOnly: true,
-  sameSite: "strict",
+  sameSite: "lax",
   secure: process.env.NODE_ENV === "production",
   maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 };
