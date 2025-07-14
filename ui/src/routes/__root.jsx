@@ -9,20 +9,7 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <React.Fragment>
-      <div className="bg-white text-black flex justify-between items-center p-4">
-        <h1 className="text-2xl">ShoppingStorage</h1>
-        <div>
-          <input type="text" />
-          <Search />
-        </div>
-        <div>
-          <ul>
-            <li></li>
-            <li></li>
-            <li></li>
-          </ul>
-        </div>
-      </div>
+      <div></div>
       <Outlet />
     </React.Fragment>
   );
