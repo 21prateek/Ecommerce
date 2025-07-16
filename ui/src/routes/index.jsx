@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { dashboardRefresh } from "../lib/checkAuth.js";
+import NavBar from "../components/NavBar.jsx";
+import Footer from "../components/Footer.jsx";
+import Content from "../components/Content.jsx";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
@@ -11,5 +14,11 @@ export const Route = createFileRoute("/")({
 });
 
 function RouteComponent() {
-  return <div>Hello "/actual"!</div>;
+  return (
+    <div className="min-h-screen bg-white">
+      <NavBar />
+      <Content />
+      <Footer />
+    </div>
+  );
 }
