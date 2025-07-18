@@ -15,7 +15,7 @@ export const Route = createFileRoute("/")({
 
 function RouteComponent() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       <NavBar />
       <Content />
       <Footer />

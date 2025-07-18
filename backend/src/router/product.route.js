@@ -7,21 +7,27 @@ import {
 import { authMiddlewre, checkAdmin } from "../middleware/auth.middleware.js";
 import {
   addProduct,
+  allProduct,
   deleteProduct,
   productDetails,
   updateProduct,
 } from "../controller/product.controller.js";
+import { upload } from "../middleware/upload.middleware.js";
 
 export const productRouter = express.Router();
 
 // Add product (Admin only)
 productRouter.post(
   "/add",
-  validator(addProductSchema),
+  upload.fields([{ name: "image", maxCount: 1 }]),
   authMiddlewre,
   checkAdmin,
+  validator(addProductSchema),
   addProduct
 );
+
+//all products
+productRouter.get("/", authMiddlewre, allProduct);
 
 // Get single product (Public)
 productRouter.get("/:productId", productDetails);
@@ -37,3 +43,9 @@ productRouter.put(
 
 // Delete product (Admin only)
 productRouter.delete("/:productId", authMiddlewre, checkAdmin, deleteProduct);
+
+// productRouter.post("/upload-test", upload.single("image"), (req, res) => {
+//   console.log("Start");
+//   console.log("File:", req.file);
+//   res.json({ message: "Upload worked", file: req.file });
+// });

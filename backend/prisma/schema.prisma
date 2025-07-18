@@ -39,6 +39,7 @@ model Products {
   category  String
   stock     Int         @default(1)
   price     Int
+  imageUrl  String?
   createdAt DateTime    @default(now())
   updateAt  DateTime    @updatedAt
   CartItem  CartItem[]
