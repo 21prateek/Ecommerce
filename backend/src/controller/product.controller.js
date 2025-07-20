@@ -5,10 +5,8 @@ import uploadOnCloudinary from "../config/cloudinary.js";
 
 // Add Product (body is already validated)
 export const addProduct = async (req, res) => {
+  console.log("hello");
   try {
-    console.log("Image", req.files.image[0]);
-    console.log("REQ.HEADERS", req.headers);
-    console.log("REQ.BODY:", req.body);
     if (!req.files) {
       return res.status(400).json({ error: "No file uploaded" });
     }
@@ -17,10 +15,8 @@ export const addProduct = async (req, res) => {
 
     if (!pathImage) return sendError(res, 400, "Image is required");
 
-    console.log(pathImage.path);
+    // console.log(pathImage.path);
     const productImage = await uploadOnCloudinary(pathImage.path);
-
-    // console.log(productImage);
 
     const product = await db.products.create({
       data: { name, price, stock, category, imageUrl: productImage.url },
@@ -78,6 +74,8 @@ export const productDetails = async (req, res) => {
         id: product.id,
         name: product.name,
         price: product.price,
+        image: product.imageUrl,
+        stock: product.stock,
       },
     });
   } catch (error) {

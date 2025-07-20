@@ -25,8 +25,8 @@ const uploadOnCloudinary = async (localFilePath) => {
     });
 
     //file has been uploaded successfully
-    console.log("File is uploaded");
-    console.log(response); //so here we will get many value and from that we want url
+    // console.log("File is uploaded");
+    // console.log(response); //so here we will get many value and from that we want url
 
     //after uploading unlink
     fs.unlinkSync(localFilePath); //so if we upload the file it is a very fast process so when the image will be using multer in public/temp ,when this cloudinary function is called it will unlink its self very fast after uploading into cloudinary

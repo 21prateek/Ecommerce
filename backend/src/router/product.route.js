@@ -34,7 +34,7 @@ productRouter.get("/:productId", productDetails);
 
 // Update product (Admin only)
 productRouter.put(
-  "/update/:productId", // ✅ include :productId in path
+  "/update/:productId", //  include :productId in path
   validator(updateProductSchema),
   authMiddlewre,
   checkAdmin,
