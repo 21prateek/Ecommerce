@@ -5,7 +5,6 @@ import uploadOnCloudinary from "../config/cloudinary.js";
 
 // Add Product (body is already validated)
 export const addProduct = async (req, res) => {
-  console.log("hello");
   try {
     if (!req.files) {
       return res.status(400).json({ error: "No file uploaded" });
@@ -121,3 +120,4 @@ export const allProduct = async (req, res) => {
     return sendError(res, 500, "Internal server error", error.message);
   }
 };
+

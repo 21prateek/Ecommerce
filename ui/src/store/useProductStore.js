@@ -36,7 +36,7 @@ export const useProductStore = create((set) => ({
       formData.append("image", product.image[0]); // so image[0] will contain the file path
       // console.log(product.image);
 
-      const res = await axiosInstance.post("/api/v1/product/add", formData, {
+      await axiosInstance.post("/api/v1/product/add", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

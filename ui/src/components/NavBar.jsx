@@ -50,6 +50,9 @@ function NavBar() {
           <li className="px-4 py-2 rounded-xl cursor-pointer transition-all duration-300 hover:bg-black hover:text-white">
             <Link to={"/auth/profile"}>Profile</Link>
           </li>
+          <li className="px-4 py-2 rounded-xl cursor-pointer transition-all duration-300 hover:bg-black hover:text-white">
+            <Link to="/orders/cart">Cart</Link>
+          </li>
         </ul>
       </div>
     </div>

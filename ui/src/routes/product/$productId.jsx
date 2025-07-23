@@ -2,6 +2,7 @@ import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useProductStore } from "../../store/useProductStore";
 import NavBar from "../../components/NavBar";
+import { useCartStore } from "../../store/useCartStore";
 
 export const Route = createFileRoute("/product/$productId")({
   component: RouteComponent,
@@ -10,10 +11,15 @@ export const Route = createFileRoute("/product/$productId")({
 function RouteComponent() {
   const { productId } = useParams({ strict: false });
   const { productDetails, selectedProduct, loading } = useProductStore();
+  const { addItem, isLoading } = useCartStore();
 
   useEffect(() => {
     productDetails(productId);
   }, [productId]);
+
+  const handleAdd = async () => {
+    await addItem(productId, 1);
+  };
 
   if (loading) return <p className="text-center">Loading...</p>;
   if (!selectedProduct) return <p className="text-center">Product not found</p>;
@@ -36,7 +42,11 @@ function RouteComponent() {
             <button className="bg-amber-300 p-4 rounded-2xl shadow-xl border-b border-amber-300 cursor-pointer hover:bg-white ">
               Buy now
             </button>
-            <button className="bg-blue-500 p-4 rounded-2xl shadow-xl border-b  cursor-pointer hover:bg-white ">
+            <button
+              className="bg-blue-500 p-4 rounded-2xl shadow-xl border-b  cursor-pointer hover:bg-white "
+              onClick={handleAdd}
+              disabled={isLoading}
+            >
               Add to cart
             </button>
           </div>

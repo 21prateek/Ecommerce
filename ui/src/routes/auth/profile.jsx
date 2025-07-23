@@ -1,4 +1,9 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useNavigate,
+} from "@tanstack/react-router";
 import { useAuthStore } from "../../store/useAuthStore";
 import NavBar from "../../components/NavBar";
 import { motion } from "framer-motion";
@@ -24,12 +29,26 @@ export const Route = createFileRoute("/auth/profile")({
 });
 
 function RouteComponent() {
-  const { authUser } = useAuthStore();
-  console.log(authUser);
+  const { authUser, logOut } = useAuthStore();
+  // console.log(authUser);
+  const navigate = useNavigate();
 
   if (!authUser) {
     return <div>Loading....</div>;
   }
+
+  //logout function
+  const handleLogout = async () => {
+    try {
+      await logOut();
+      // console.log("You are logged out");
+  
+      navigate({ to: "/auth/login" });
+    } catch (error) {
+      
+    }
+  };
+
   return (
     <div className="bg-white h-screen text-black overflow-hidden">
       <NavBar />
@@ -43,7 +62,10 @@ function RouteComponent() {
                 <Link to="/product/add">Add Product</Link>
               </li>
             ) : null}
-            <li className="transition-all duration-300 hover:bg-black hover:text-white rounded-2xl p-5 cursor-pointer">
+            <li
+              className="transition-all duration-300 hover:bg-black hover:text-white rounded-2xl p-5 cursor-pointer"
+              onClick={handleLogout}
+            >
               Logout
             </li>
           </ul>
