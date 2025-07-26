@@ -1,21 +1,21 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCartStore } from "../../store/useCartStore";
-import { useEffect } from "react";
+
 import NavBar from "../../components/NavBar";
 
 export const Route = createFileRoute("/orders/cart")({
   component: RouteComponent,
+  beforeLoad: async () => {
+    const { getAllItems } = useCartStore.getState();
+    await getAllItems();
+  },
 });
 
 function RouteComponent() {
-  const { cartItems, getAllItems, isLoading, error, deleteItem } =
+  const { isLoading, error, deleteItem, updateItemQuantity, cartItems } =
     useCartStore();
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    getAllItems();
-  }, [getAllItems]);
 
   const getTotal = () => {
     return cartItems.reduce(
@@ -68,9 +68,34 @@ function RouteComponent() {
 
                   {/* Quantity Controls */}
                   <div className="flex flex-col justify-center gap-3 items-center">
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="bg-gray-200 px-3 py-1 rounded text-lg font-bold hover:bg-gray-300"
+                        onClick={() =>
+                          item.quantity > 1
+                            ? updateItemQuantity(item.id, item.quantity - 1)
+                            : deleteItem(item.id)
+                        }
+                      >
+                        -
+                      </button>
+                      <span className="text-lg font-semibold">
+                        {item.quantity}
+                      </span>
+                      <button
+                        className="bg-gray-200 px-3 py-1 rounded text-lg font-bold hover:bg-gray-300"
+                        onClick={() =>
+                          updateItemQuantity(item.id, item.quantity + 1)
+                        }
+                      >
+                        +
+                      </button>
+                    </div>
+
                     <p className="text-xl font-bold text-blue-700">
                       ₹{item.product.price * item.quantity}
                     </p>
+
                     <button
                       className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-900"
                       onClick={() => deleteItem(item.id)}
@@ -91,7 +116,7 @@ function RouteComponent() {
                 className="bg-blue-500 text-white rounded hover:bg-white hover:text-black hover:border px-5 py-2 text-2xl"
                 onClick={() => navigate({ to: "/orders" })}
               >
-                Buy{" "}
+                Buy
               </button>
             </div>
           </>

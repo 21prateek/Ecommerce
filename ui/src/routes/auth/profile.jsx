@@ -42,10 +42,10 @@ function RouteComponent() {
     try {
       await logOut();
       // console.log("You are logged out");
-  
+
       navigate({ to: "/auth/login" });
     } catch (error) {
-      
+      console.log(error.message);
     }
   };
 

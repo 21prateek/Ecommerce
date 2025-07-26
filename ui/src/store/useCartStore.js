@@ -1,91 +1,82 @@
 import { create } from "zustand";
-import { axiosInstance } from "../lib/axiosInstance";
+import {
+  fetchCart,
+  addToCart,
+  deleteItem,
+  updateCartQuantity,
+} from "../lib/cartApi";
 
-export const useCartStore = create((set) => ({
+export const useCartStore = create((set, get) => ({
   cartItems: [],
   isLoading: false,
   error: null,
 
-  //get all items
   getAllItems: async () => {
     set({ isLoading: true, error: null });
-
     try {
-      const res = await axiosInstance.get("/api/v1/cart/add-cart");
+      const res = await fetchCart();
+      console.log(res.cartItem);
+      set({ cartItems: res.cartItem, isLoading: false });
 
-      set({ cartItems: res.data.cartItem, isLoading: false });
+      console.log(res.data);
     } catch (error) {
-      console.error("Get Cart Error:", error);
-      set({ error: error.message, loading: false });
-    } finally {
-      set({ isloading: false });
+      set({ error: error.message, isLoading: false });
     }
   },
 
-  //add item to cart
   addItem: async (productId, quantity = 1) => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true });
     try {
-      await axiosInstance.post("/api/v1/cart/add-item", {
-        productId,
-        quantity,
-      });
-      // console.log(res.data);
+      const res = await addToCart(productId, quantity);
 
-      //after adding refresh the cart
-      await useCartStore.getState().getAllItems();
-      set({ loading: false });
+      //so it will find if that product already exist
+      const existingItem = get().cartItems.find(
+        (item) => item.productId === productId
+      );
+
+      //if exisitng then just increase its quantity
+      if (existingItem) {
+        set({
+          cartItems: get().cartItems.map((item) =>
+            item.productId === productId
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          ),
+        });
+        //just put it inside the cartItems
+      } else {
+        set({
+          cartItems: [...get().cartItems, res.cartItem],
+        });
+      }
+
+      set({ isLoading: false });
     } catch (error) {
-      set({ error: error.message, loading: false });
-    } finally {
-      set({ isloading: false });
+      set({ error: error.message, isLoading: false });
     }
   },
 
-  //add or remove quantity
-  updateQuantity: async (productId, quantity) => {
-    if (quantity < 1) return; //not less than 1
-
-    set({ isLoading: true, error: null });
-
+  updateItemQuantity: async (cartId, quantity) => {
     try {
-      await axiosInstance.put(`/api/v1/cart/update-cart/${productId}`, {
-        quantity: quantity,
-      });
-
-      // Update only that item in local state
-      //it is for a particular item , so if the click item productId matches then pu the item details and also give it a new quantity
-      //otherwise give the previous it detail which does not match
-      set((state) => ({
-        cartItems: state.cartItems.map((item) =>
-          item.id === productId ? { ...item, quantity: quantity } : item
+      await updateCartQuantity(cartId, quantity);
+      set({
+        cartItems: get().cartItems.map((item) =>
+          item.id === cartId ? { ...item, quantity } : item
         ),
-      }));
-      set({ isLoading: false });
+      });
     } catch (error) {
-      console.error("Update Cart Error:", error);
-      set({ error: error.message, isLoading: false });
-    } finally {
-      set({ isloading: false });
+      set({ error: error.message });
     }
   },
 
-  //delete item from cart
-  deleteItem: async (productId) => {
-    set({ isLoading: true, error: null });
+  deleteItem: async (cartId) => {
     try {
-      await axiosInstance.delete(`/api/v1/cart/delete/${productId}`);
-
-      //filter onlt those which does not have id same as the clicked on, all of it will be set to cartItems
-      set((state) => ({
-        cartItems: state.cartItems.filter((item) => item.id !== productId),
-      }));
-      set({ isLoading: false });
+      await deleteItem(cartId);
+      set({
+        cartItems: get().cartItems.filter((item) => item.id !== cartId),
+      });
     } catch (error) {
-      console.error("Remove Cart Error:", error);
-      set({ error: error.message, isLoading: false });
-    } finally {
-      set({ isloading: false });
+      set({ error: error.message });
     }
   },
 }));
